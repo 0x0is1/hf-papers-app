@@ -20,7 +20,6 @@ const PaperPDFScreen = () => {
       </View>
     );
   }
-  return <></>;
   return (
     <View style={styles(COLORS, SIZES).container}>
       {/* Header */}
