@@ -104,7 +104,7 @@ const SimpleSplashScreen: React.FC<SimpleSplashScreenProps> = ({ onFinish }) => 
           
           {/* Main icon circle */}
           <View style={styles.iconCircle}>
-            <MaterialIcons name="psychology" size={64} color={COLORS.splashIconColor} />
+            <MaterialIcons name="link" size={64} color={COLORS.splashIconColor} />
           </View>
           
           {/* Inner glow ring */}
