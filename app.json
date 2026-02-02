@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "HF Papers",
+    "slug": "hf-papers-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/documents.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "hfpapers",
+    "splash": {
+      "image": "./assets/documents.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a1a2e"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/documents.png",
+        "backgroundColor": "#1a1a2e"
+      },
+      "package": "com.nys.hfpapers"
+    },
+    "web": {
+      "favicon": "./assets/documents.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "4bf59bf1-9acb-4c27-9aba-d5a2922c72f8"
+      }
+    }
+  }
+}
