@@ -40,7 +40,9 @@
             "buildToolsVersion": "35.0.0"
           }
         }
-      ]
+      ],
+      "@config-plugins/react-native-blob-util",
+      "@config-plugins/react-native-pdf"
     ],
     "extra": {
       "router": {

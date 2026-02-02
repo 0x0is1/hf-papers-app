@@ -28,7 +28,16 @@ type ThemeValue = {
   toggleTheme: () => void;
 };
 
-const ThemeContext = createContext<ThemeValue | null>(null);
+const ThemeContext = createContext<ThemeValue>({
+  COLORS: DARK_COLORS,
+  SIZES,
+  FONTS,
+  SHADOWS: DARK_SHADOWS,
+  LAYOUT,
+  ANIMATION,
+  isDark: true,
+  toggleTheme: () => {},
+});
 
 const STORAGE_KEY = "APP_THEME_MODE";
 
@@ -38,9 +47,13 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     (async () => {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (stored !== null) {
-        setIsDark(stored === "dark");
+      try {
+        const stored = await AsyncStorage.getItem(STORAGE_KEY);
+        if (stored !== null) {
+          setIsDark(stored === "dark");
+        }
+      } catch (e) {
+        console.log("Theme loading error:", e);
       }
       setHydrated(true);
     })();
@@ -49,7 +62,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const toggleTheme = async () => {
     setIsDark((prev) => {
       const next = !prev;
-      AsyncStorage.setItem(STORAGE_KEY, next ? "dark" : "light");
+      AsyncStorage.setItem(STORAGE_KEY, next ? "dark" : "light").catch(
+        console.log
+      );
       return next;
     });
   };
@@ -68,17 +83,15 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     [isDark],
   );
 
-  if (!hydrated) return null;
-
+  // Always provide context, don't return null
   return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
   );
 };
 
 export const useTheme = () => {
   const ctx = useContext(ThemeContext);
-  if (!ctx) {
-    throw new Error("useTheme must be used inside ThemeProvider");
-  }
   return ctx;
 };
