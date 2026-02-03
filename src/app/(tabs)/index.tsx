@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   FlatList,
@@ -31,8 +31,14 @@ const HomeScreen = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [date, setDate] = useState<Date>(today);
+  const lastDirectionRef = useRef<number>(0); // Track last navigation direction: -1 (back) or 1 (forward)
+  const isAutoNavigatingRef = useRef<boolean>(false); // Prevent infinite loops
 
-  const fetchPapers = async (targetDate: Date = date, isRefresh = false) => {
+  const fetchPapers = async (
+    targetDate: Date = date,
+    isRefresh = false,
+    autoNavigate = true,
+  ) => {
     try {
       if (!isRefresh) setLoading(true);
       setError(null);
@@ -41,9 +47,39 @@ const HomeScreen = () => {
       const response = await papersApi.getDailyPapers(dateStr);
 
       const newPapers = Array.isArray(response?.papers) ? response.papers : [];
-      setPapers(newPapers);
+
+      // If papers are empty and we should auto-navigate
+      if (
+        newPapers.length === 0 &&
+        autoNavigate &&
+        lastDirectionRef.current !== 0 &&
+        !isAutoNavigatingRef.current
+      ) {
+        isAutoNavigatingRef.current = true;
+
+        // Navigate in the same direction as before
+        const nextDate = new Date(targetDate);
+        nextDate.setDate(nextDate.getDate() + lastDirectionRef.current);
+
+        // Check boundaries
+        if (
+          formatDate(nextDate) <= todayStr &&
+          formatDate(nextDate) >= "2000-01-01"
+        ) {
+          setDate(nextDate);
+          // The useEffect will trigger fetchPapers again
+        } else {
+          // Reached boundary, stop auto-navigation
+          setPapers([]);
+          isAutoNavigatingRef.current = false;
+        }
+      } else {
+        setPapers(newPapers);
+        isAutoNavigatingRef.current = false;
+      }
     } catch {
       setError("Failed to load papers. Please try again.");
+      isAutoNavigatingRef.current = false;
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -56,15 +92,23 @@ const HomeScreen = () => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    fetchPapers(date, true);
+    lastDirectionRef.current = 0; // Reset direction on manual refresh
+    isAutoNavigatingRef.current = false;
+    fetchPapers(date, true, false); // Don't auto-navigate on refresh
   }, [date]);
 
   const changeDate = (delta: number) => {
     const next = new Date(date);
     next.setDate(next.getDate() + delta);
 
+    // Check forward boundary
     if (formatDate(next) > todayStr) return;
 
+    // Check backward boundary (optional, set a reasonable limit)
+    if (formatDate(next) < "2000-01-01") return;
+
+    lastDirectionRef.current = delta; // Store the direction
+    isAutoNavigatingRef.current = false; // Reset auto-navigation flag
     setPapers([]);
     setDate(next);
   };
@@ -94,27 +138,46 @@ const HomeScreen = () => {
         <TouchableOpacity
           style={styles(COLORS, SIZES).dateNavBtn}
           onPress={() => changeDate(-1)}
+          disabled={loading}
         >
-          <MaterialIcons name="chevron-left" size={28} color={COLORS.text} />
+          <MaterialIcons
+            name="chevron-left"
+            size={28}
+            color={loading ? COLORS.textTertiary : COLORS.text}
+          />
         </TouchableOpacity>
 
         <View style={styles(COLORS, SIZES).dateDisplay}>
-          <MaterialIcons name="calendar-today" size={18} color={COLORS.primary} />
+          <MaterialIcons
+            name="calendar-today"
+            size={18}
+            color={COLORS.primary}
+          />
           <Text style={styles(COLORS, SIZES).dateText}>{formatDate(date)}</Text>
+          {isAutoNavigatingRef.current && (
+            <Text style={styles(COLORS, SIZES).searchingText}>
+              (searching...)
+            </Text>
+          )}
         </View>
 
         <TouchableOpacity
           style={[
             styles(COLORS, SIZES).dateNavBtn,
-            formatDate(date) === todayStr && styles(COLORS, SIZES).disabledBtn,
+            (formatDate(date) === todayStr || loading) &&
+              styles(COLORS, SIZES).disabledBtn,
           ]}
-          disabled={formatDate(date) === todayStr}
+          disabled={formatDate(date) === todayStr || loading}
           onPress={() => changeDate(1)}
         >
           <MaterialIcons
             name="chevron-right"
             size={28}
-            color={formatDate(date) === todayStr ? COLORS.textTertiary : COLORS.text}
+            color={
+              formatDate(date) === todayStr || loading
+                ? COLORS.textTertiary
+                : COLORS.text
+            }
           />
         </TouchableOpacity>
       </View>
@@ -125,22 +188,36 @@ const HomeScreen = () => {
     <View style={styles(COLORS, SIZES).emptyContainer}>
       <MaterialIcons name="article" size={64} color={COLORS.textTertiary} />
       <Text style={styles(COLORS, SIZES).emptyText}>
-        {loading ? "Loading papers…" : "No papers available"}
+        {loading ? "Loading papers…" : "No papers available for this date"}
       </Text>
+      {!loading && papers.length === 0 && (
+        <Text style={styles(COLORS, SIZES).emptySubtext}>
+          Try navigating to a different date
+        </Text>
+      )}
     </View>
   );
 
-  if (loading && papers.length === 0) {
+  if (loading && papers.length === 0 && !isAutoNavigatingRef.current) {
     return <LoadingSpinner message="Loading papers..." />;
   }
 
   if (error && papers.length === 0) {
-    return <ErrorMessage message={error} onRetry={() => fetchPapers(date, true)} />;
+    return (
+      <ErrorMessage
+        message={error}
+        onRetry={() => fetchPapers(date, true, false)}
+      />
+    );
   }
 
   return (
     <View style={styles(COLORS, SIZES).container}>
-      <StatusBar barStyle={COLORS.background === '#FAFAFC' ? 'dark-content' : 'light-content'} />
+      <StatusBar
+        barStyle={
+          COLORS.background === "#F8F9EF" ? "dark-content" : "light-content"
+        }
+      />
       {renderHeader()}
       <FlatList
         data={papers}
@@ -187,7 +264,7 @@ const styles = (COLORS: any, SIZES: any) =>
       width: 48,
       height: 48,
       borderRadius: SIZES.radiusMd,
-      backgroundColor: COLORS.primaryLight + '20',
+      backgroundColor: COLORS.primaryLight + "20",
       justifyContent: "center",
       alignItems: "center",
     },
@@ -233,6 +310,11 @@ const styles = (COLORS: any, SIZES: any) =>
       fontWeight: "600",
       color: COLORS.text,
     },
+    searchingText: {
+      fontSize: SIZES.small,
+      color: COLORS.textTertiary,
+      fontStyle: "italic",
+    },
     listContent: {
       paddingHorizontal: SIZES.md,
       paddingTop: SIZES.md,
@@ -248,6 +330,11 @@ const styles = (COLORS: any, SIZES: any) =>
       fontSize: SIZES.body,
       color: COLORS.textSecondary,
       marginTop: SIZES.md,
+    },
+    emptySubtext: {
+      fontSize: SIZES.caption,
+      color: COLORS.textTertiary,
+      marginTop: SIZES.sm,
     },
   });
 

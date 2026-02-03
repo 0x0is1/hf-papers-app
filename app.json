@@ -4,11 +4,11 @@
     "slug": "hf-papers-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/documents.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "hfpapers",
     "splash": {
-      "image": "./assets/documents.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#1a1a2e"
     },
@@ -17,13 +17,17 @@
     ],
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/documents.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1a1a2e"
       },
       "package": "com.nys.hfpapers"
     },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nys.hfpapers"
+    },
     "web": {
-      "favicon": "./assets/documents.png",
+      "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [

@@ -1,59 +1,70 @@
-import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Easing,
-} from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { COLORS, SIZES } from '../constants/theme';
+import React, { useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Animated, Easing } from "react-native";
+import { Svg, Path, G } from "react-native-svg";
+import { COLORS, SIZES } from "@/constants/theme";
 
 interface SimpleSplashScreenProps {
   onFinish: () => void;
 }
 
-const SimpleSplashScreen: React.FC<SimpleSplashScreenProps> = ({ onFinish }) => {
+// Paper plane SVG component
+const AnimatedSvg = Animated.createAnimatedComponent(Svg);
+
+const PaperPlaneIcon = ({ size = 80, color = COLORS.primary }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill={color} />
+  </Svg>
+);
+
+const SimpleSplashScreen: React.FC<SimpleSplashScreenProps> = ({
+  onFinish,
+}) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const heartbeatAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const iconFadeAnim = useRef(new Animated.Value(0)).current;
+  const iconScaleAnim = useRef(new Animated.Value(0.8)).current;
+  const textFadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Fade in
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
-
-    // Combined heartbeat + rotation animation
-    Animated.parallel([
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(heartbeatAnim, {
-            toValue: 1.12,
-            duration: 600,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(heartbeatAnim, {
-            toValue: 1,
-            duration: 600,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.delay(200),
-        ])
-      ),
-      Animated.loop(
-        Animated.timing(rotateAnim, {
+    // Sequential smooth animations
+    Animated.sequence([
+      // Icon appears
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 8000,
-          easing: Easing.linear,
+          duration: 600,
+          easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
-        })
-      ),
+        }),
+        Animated.timing(iconFadeAnim, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.spring(iconScaleAnim, {
+          toValue: 1,
+          tension: 50,
+          friction: 7,
+          useNativeDriver: true,
+        }),
+      ]),
+      // Text appears
+      Animated.delay(200),
+      Animated.parallel([
+        Animated.timing(textFadeAnim, {
+          toValue: 1,
+          duration: 600,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 600,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]),
     ]).start();
 
     // Navigate after delay
@@ -70,11 +81,6 @@ const SimpleSplashScreen: React.FC<SimpleSplashScreenProps> = ({ onFinish }) => 
     return () => clearTimeout(timer);
   }, []);
 
-  const spin = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
   return (
     <View style={styles.container}>
       <Animated.View
@@ -85,35 +91,41 @@ const SimpleSplashScreen: React.FC<SimpleSplashScreenProps> = ({ onFinish }) => 
           },
         ]}
       >
-        {/* Logo with heartbeat and rotation */}
+        {/* Icon container with subtle glow */}
         <Animated.View
           style={[
-            styles.logoContainer,
+            styles.iconContainer,
             {
-              transform: [{ scale: heartbeatAnim }, { rotate: spin }],
+              opacity: iconFadeAnim,
+              transform: [{ scale: iconScaleAnim }],
             },
           ]}
         >
-          {/* Outer ring */}
-          <View style={styles.outerRing}>
-            <View style={styles.outerRingDot} />
-            <View style={styles.outerRingDot} />
-            <View style={styles.outerRingDot} />
-            <View style={styles.outerRingDot} />
+          {/* Subtle background circle */}
+          <View style={styles.iconBackground}>
+            <View style={styles.iconGlow} />
           </View>
-          
-          {/* Main icon circle */}
-          <View style={styles.iconCircle}>
-            <MaterialIcons name="link" size={64} color={COLORS.splashIconColor} />
+
+          {/* Paper plane icon */}
+          <View style={styles.iconWrapper}>
+            <PaperPlaneIcon size={80} color={COLORS.primary} />
           </View>
-          
-          {/* Inner glow ring */}
-          <View style={styles.innerGlow} />
         </Animated.View>
 
-        {/* Simple text */}
-        <Text style={styles.appName}>HF Papers</Text>
-        <Text style={styles.tagline}>By NYS</Text>
+        {/* App name and tagline */}
+        <Animated.View
+          style={[
+            styles.textContainer,
+            {
+              opacity: textFadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <Text style={styles.appName}>HF Papers</Text>
+          <View style={styles.divider} />
+          <Text style={styles.tagline}>Research Papers Simplified</Text>
+        </Animated.View>
       </Animated.View>
     </View>
   );
@@ -123,63 +135,65 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.splashBackground,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   content: {
-    alignItems: 'center',
+    alignItems: "center",
   },
-  logoContainer: {
-    marginBottom: SIZES.xxl,
-    position: 'relative',
+  iconContainer: {
+    marginBottom: SIZES.xxxl,
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  outerRing: {
-    position: 'absolute',
+  iconBackground: {
+    position: "absolute",
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: COLORS.splashLogoBackground,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: COLORS.splashLogoShadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  iconGlow: {
+    position: "absolute",
     width: 180,
     height: 180,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  outerRingDot: {
-    position: 'absolute',
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    borderRadius: 90,
     backgroundColor: COLORS.primary,
+    opacity: 0.08,
   },
-  iconCircle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: COLORS.splashLogoBackground,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: COLORS.primary,
-    zIndex: 1,
+  iconWrapper: {
+    zIndex: 2,
   },
-  innerGlow: {
-    position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 4,
-    borderColor: COLORS.primary,
-    opacity: 0.2,
+  textContainer: {
+    alignItems: "center",
   },
   appName: {
-    fontSize: 42,
-    fontWeight: '800',
+    fontSize: 36,
+    fontWeight: "700",
     color: COLORS.splashText,
-    letterSpacing: -1,
+    letterSpacing: -0.5,
+    marginBottom: SIZES.sm,
+  },
+  divider: {
+    width: 40,
+    height: 3,
+    backgroundColor: COLORS.primary,
+    borderRadius: 2,
     marginBottom: SIZES.sm,
   },
   tagline: {
-    fontSize: SIZES.h5,
+    fontSize: SIZES.body,
     color: COLORS.textSecondary,
-    fontWeight: '500',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
+    fontWeight: "400",
+    letterSpacing: 0.5,
   },
 });
 
