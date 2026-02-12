@@ -56,7 +56,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       }),
     ]).start();
 
-    // Floating animation (icon + glow move together)
+    // Floating animation (icon + glow together)
     floatingLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(iconFloat, {
@@ -73,14 +73,13 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         }),
       ]),
     );
-
     floatingLoop.start();
 
     // Glow breathing animation
     glowLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(glowScale, {
-          toValue: 1.1,
+          toValue: 1.15,
           duration: 1500,
           useNativeDriver: true,
         }),
@@ -91,7 +90,6 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         }),
       ]),
     );
-
     glowLoop.start();
 
     const timer = setTimeout(() => {
@@ -112,7 +110,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.content, { opacity: containerOpacity }]}>
-        {/* ICON STACK (Perfect Alignment Container) */}
+        {/* ICON STACK */}
         <Animated.View
           style={[
             styles.iconStack,
@@ -121,19 +119,21 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
             },
           ]}
         >
-          {/* Glow Layer */}
-          <Animated.View
-            style={[
-              styles.glow,
-              {
-                transform: [{ scale: glowScale }],
-              },
-            ]}
-          />
+          <View style={styles.iconCenter}>
+            {/* Glow */}
+            <Animated.View
+              style={[
+                styles.glow,
+                {
+                  transform: [{ scale: glowScale }],
+                },
+              ]}
+            />
 
-          {/* Icon Circle */}
-          <View style={styles.iconWrapper}>
-            <Ionicons name="paper-plane" size={72} color={COLORS.primary} />
+            {/* Icon Circle */}
+            <View style={styles.iconWrapper}>
+              <Ionicons name="paper-plane" size={72} color={COLORS.primary} />
+            </View>
           </View>
         </Animated.View>
 
@@ -158,6 +158,8 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
 export default SplashScreen;
 
+const ICON_SIZE = 120;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -171,26 +173,27 @@ const styles = StyleSheet.create({
   },
 
   iconStack: {
-    width: 150,
-    height: 150,
-    justifyContent: "center",
-    alignItems: "center",
     marginBottom: SIZES.xxl,
   },
 
+  iconCenter: {
+    width: ICON_SIZE,
+    height: ICON_SIZE,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
   glow: {
-    position: "absolute",
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: ICON_SIZE / 2,
     backgroundColor: COLORS.primary,
     opacity: 0.08,
   },
 
   iconWrapper: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: ICON_SIZE,
+    height: ICON_SIZE,
+    borderRadius: ICON_SIZE / 2,
     backgroundColor: COLORS.splashLogoBackground,
     justifyContent: "center",
     alignItems: "center",

@@ -66,12 +66,40 @@ const PaperDetailsScreen = () => {
 
   const handleShare = async () => {
     if (!paper || !arxivId) return;
-    await Share.share({
-      title: paper.title,
-      message: `Check out this paper:\n\n${paper.title}\n${papersApi.getArxivUrl(
-        arxivId,
-      )}`,
-    });
+
+    const arxivUrl = papersApi.getArxivUrl(arxivId);
+
+    const rawAbstract = paper.summary ?? paper.abstract ?? "";
+
+    const trimmedAbstract =
+      rawAbstract.length > 0
+        ? rawAbstract.length > 800
+          ? rawAbstract.slice(0, 800) + "..."
+          : rawAbstract
+        : "";
+
+    const abstractText =
+      trimmedAbstract.length > 0 ? `\n\n📝 Abstract:\n${trimmedAbstract}` : "";
+
+    const mediaText =
+      paper.mediaUrls && paper.mediaUrls.length > 0
+        ? `\n\n🔗 Resources:\n${paper.mediaUrls.join("\n")}`
+        : "";
+
+    const message = `📄 ${paper.title}${abstractText}
+
+  🔎 Read full paper:
+  ${arxivUrl}${mediaText}
+  `;
+
+    try {
+      await Share.share({
+        title: paper.title,
+        message,
+      });
+    } catch (error) {
+      console.error("Error sharing:", error);
+    }
   };
 
   const formatDate = (dateString: string) => {
