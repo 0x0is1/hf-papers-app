@@ -1,135 +1,141 @@
 import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, Animated, Easing } from "react-native";
-import { Svg, Path, G } from "react-native-svg";
+import { Ionicons } from "@expo/vector-icons";
 import { COLORS, SIZES } from "@/constants/theme";
 
-interface SimpleSplashScreenProps {
+interface SplashScreenProps {
   onFinish: () => void;
 }
 
-// Paper plane SVG component
-const AnimatedSvg = Animated.createAnimatedComponent(Svg);
-
-const PaperPlaneIcon = ({ size = 80, color = COLORS.primary }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill={color} />
-  </Svg>
-);
-
-const SimpleSplashScreen: React.FC<SimpleSplashScreenProps> = ({
-  onFinish,
-}) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
-  const iconFadeAnim = useRef(new Animated.Value(0)).current;
-  const iconScaleAnim = useRef(new Animated.Value(0.8)).current;
-  const textFadeAnim = useRef(new Animated.Value(0)).current;
+const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
+  const containerOpacity = useRef(new Animated.Value(0)).current;
+  const iconScale = useRef(new Animated.Value(0.6)).current;
+  const iconFloat = useRef(new Animated.Value(0)).current;
+  const iconGlow = useRef(new Animated.Value(0.2)).current;
+  const titleOpacity = useRef(new Animated.Value(0)).current;
+  const taglineOpacity = useRef(new Animated.Value(0)).current;
+  const titleSlide = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
-    // Sequential smooth animations
+    // Entry animation
     Animated.sequence([
-      // Icon appears
+      Animated.timing(containerOpacity, {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+
       Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 600,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.timing(iconFadeAnim, {
-          toValue: 1,
-          duration: 800,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.spring(iconScaleAnim, {
+        Animated.spring(iconScale, {
           toValue: 1,
           tension: 50,
-          friction: 7,
+          friction: 6,
           useNativeDriver: true,
         }),
-      ]),
-      // Text appears
-      Animated.delay(200),
-      Animated.parallel([
-        Animated.timing(textFadeAnim, {
+        Animated.timing(titleOpacity, {
           toValue: 1,
-          duration: 600,
-          easing: Easing.out(Easing.cubic),
+          duration: 500,
           useNativeDriver: true,
         }),
-        Animated.timing(slideAnim, {
+        Animated.timing(titleSlide, {
           toValue: 0,
-          duration: 600,
+          duration: 500,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
       ]),
+
+      Animated.timing(taglineOpacity, {
+        toValue: 1,
+        duration: 500,
+        delay: 100,
+        useNativeDriver: true,
+      }),
     ]).start();
 
-    // Navigate after delay
+    // Floating animation loop
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(iconFloat, {
+          toValue: -6,
+          duration: 1500,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(iconFloat, {
+          toValue: 0,
+          duration: 1500,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+
+    // Subtle breathing glow
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(iconGlow, {
+          toValue: 0.5,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+        Animated.timing(iconGlow, {
+          toValue: 0.2,
+          duration: 1500,
+          useNativeDriver: false,
+        }),
+      ]),
+    ).start();
+
+    // Exit transition
     const timer = setTimeout(() => {
-      Animated.timing(fadeAnim, {
+      Animated.timing(containerOpacity, {
         toValue: 0,
         duration: 400,
         useNativeDriver: true,
-      }).start(() => {
-        onFinish();
-      });
-    }, 2500);
+      }).start(onFinish);
+    }, 2600);
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={[
-          styles.content,
-          {
-            opacity: fadeAnim,
-          },
-        ]}
-      >
-        {/* Icon container with subtle glow */}
+      <Animated.View style={[styles.content, { opacity: containerOpacity }]}>
+        {/* Icon with glow */}
         <Animated.View
           style={[
-            styles.iconContainer,
+            styles.iconWrapper,
             {
-              opacity: iconFadeAnim,
-              transform: [{ scale: iconScaleAnim }],
+              transform: [{ scale: iconScale }, { translateY: iconFloat }],
+              shadowOpacity: iconGlow,
             },
           ]}
         >
-          {/* Subtle background circle */}
-          <View style={styles.iconBackground}>
-            <View style={styles.iconGlow} />
-          </View>
-
-          {/* Paper plane icon */}
-          <View style={styles.iconWrapper}>
-            <PaperPlaneIcon size={80} color={COLORS.primary} />
-          </View>
+          <Ionicons name="paper-plane" size={72} color={COLORS.primary} />
         </Animated.View>
 
-        {/* App name and tagline */}
+        {/* Title */}
         <Animated.View
-          style={[
-            styles.textContainer,
-            {
-              opacity: textFadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
+          style={{
+            opacity: titleOpacity,
+            transform: [{ translateY: titleSlide }],
+          }}
         >
-          <Text style={styles.appName}>HF Papers</Text>
-          <View style={styles.divider} />
-          <Text style={styles.tagline}>Research Papers Simplified</Text>
+          <Text style={styles.title}>HF Papers</Text>
         </Animated.View>
+
+        {/* Tagline */}
+        <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>
+          Research Papers Simplified
+        </Animated.Text>
       </Animated.View>
     </View>
   );
 };
+
+export default SplashScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -141,60 +147,29 @@ const styles = StyleSheet.create({
   content: {
     alignItems: "center",
   },
-  iconContainer: {
-    marginBottom: SIZES.xxxl,
-    position: "relative",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  iconBackground: {
-    position: "absolute",
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+  iconWrapper: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: COLORS.splashLogoBackground,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: COLORS.splashLogoShadow,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 8,
+    marginBottom: SIZES.xxl,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 25,
+    elevation: 12,
   },
-  iconGlow: {
-    position: "absolute",
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    backgroundColor: COLORS.primary,
-    opacity: 0.08,
-  },
-  iconWrapper: {
-    zIndex: 2,
-  },
-  textContainer: {
-    alignItems: "center",
-  },
-  appName: {
+  title: {
     fontSize: 36,
     fontWeight: "700",
     color: COLORS.splashText,
     letterSpacing: -0.5,
     marginBottom: SIZES.sm,
   },
-  divider: {
-    width: 40,
-    height: 3,
-    backgroundColor: COLORS.primary,
-    borderRadius: 2,
-    marginBottom: SIZES.sm,
-  },
   tagline: {
     fontSize: SIZES.body,
     color: COLORS.textSecondary,
-    fontWeight: "400",
     letterSpacing: 0.5,
   },
 });
-
-export default SimpleSplashScreen;
