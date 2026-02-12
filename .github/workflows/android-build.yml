@@ -1,4 +1,4 @@
-name: HF Papers Android Preview Build
+name: Android Build
 
 on:
   push:
@@ -15,10 +15,21 @@ on:
 jobs:
   build-android:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Setup Expo & EAS
         uses: expo/expo-github-action@v8
@@ -35,13 +46,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Optimize Gradle
+        run: |
+          mkdir -p android
+          echo "org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=2g -Dkotlin.daemon.jvm.options=-Xmx4g" >> android/gradle.properties
+          echo "android.enableLint=false" >> android/gradle.properties
+          echo "android.enableR8.fullMode=false" >> android/gradle.properties
+
       - name: Run Local Android Preview Build
         run: |
-          eas build \
+          CI=1 eas build \
             -p android \
             --profile preview \
-            --local \
-            --non-interactive
+            --local
 
       - name: Locate APK
         id: find_apk

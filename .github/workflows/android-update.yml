@@ -1,4 +1,4 @@
-name: HF Papers OTA Update (Preview)
+name: Android OTA Update
 
 on:
   push:
