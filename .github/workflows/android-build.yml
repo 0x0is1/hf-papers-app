@@ -1,4 +1,4 @@
-name: Android Build
+name: Android APK Build
 
 on:
   push:
@@ -6,30 +6,14 @@ on:
       - main
       - preview
       - develop
-    paths:
-      - "package.json"
-      - "app.json"
-      - "eas.json"
-      - "android/**"
 
 jobs:
   build-android:
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
 
       - name: Setup Expo & EAS
         uses: expo/expo-github-action@v8
@@ -46,14 +30,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Optimize Gradle
-        run: |
-          mkdir -p android
-          echo "org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=2g -Dkotlin.daemon.jvm.options=-Xmx4g" >> android/gradle.properties
-          echo "android.enableLint=false" >> android/gradle.properties
-          echo "android.enableR8.fullMode=false" >> android/gradle.properties
-
-      - name: Run Local Android Preview Build
+      - name: Build APK (Local EAS)
+        env:
+          _JAVA_OPTIONS: "-Xmx6g -XX:MaxMetaspaceSize=3g"
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=3g -Dkotlin.daemon.jvm.options=-Xmx4g"
         run: |
           CI=1 eas build \
             -p android \
@@ -78,7 +58,7 @@ jobs:
           name: hf-papers-preview-apk
           path: ${{ steps.find_apk.outputs.apk_path }}
 
-      - name: Add Download Info to Summary
+      - name: Summary
         run: |
-          echo "## 📦 Android Preview Build Ready" >> $GITHUB_STEP_SUMMARY
-          echo "Download the APK from the **Artifacts** section above." >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ APK Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "Download from Artifacts section above." >> $GITHUB_STEP_SUMMARY
