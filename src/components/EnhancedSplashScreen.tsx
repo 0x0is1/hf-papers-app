@@ -56,7 +56,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       }),
     ]).start();
 
-    // Floating animation
+    // Floating animation (icon + glow move together)
     floatingLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(iconFloat, {
@@ -76,7 +76,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
     floatingLoop.start();
 
-    // Glow animation (using scale instead of shadowOpacity)
+    // Glow breathing animation
     glowLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(glowScale, {
@@ -112,26 +112,29 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.content, { opacity: containerOpacity }]}>
-        {/* Glow layer */}
+        {/* ICON STACK (Perfect Alignment Container) */}
         <Animated.View
           style={[
-            styles.glow,
-            {
-              transform: [{ scale: glowScale }],
-            },
-          ]}
-        />
-
-        {/* Icon */}
-        <Animated.View
-          style={[
-            styles.iconWrapper,
+            styles.iconStack,
             {
               transform: [{ scale: iconScale }, { translateY: iconFloat }],
             },
           ]}
         >
-          <Ionicons name="paper-plane" size={72} color={COLORS.primary} />
+          {/* Glow Layer */}
+          <Animated.View
+            style={[
+              styles.glow,
+              {
+                transform: [{ scale: glowScale }],
+              },
+            ]}
+          />
+
+          {/* Icon Circle */}
+          <View style={styles.iconWrapper}>
+            <Ionicons name="paper-plane" size={72} color={COLORS.primary} />
+          </View>
         </Animated.View>
 
         {/* Title */}
@@ -162,9 +165,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   content: {
     alignItems: "center",
   },
+
+  iconStack: {
+    width: 150,
+    height: 150,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: SIZES.xxl,
+  },
+
   glow: {
     position: "absolute",
     width: 150,
@@ -173,6 +186,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     opacity: 0.08,
   },
+
   iconWrapper: {
     width: 120,
     height: 120,
@@ -180,9 +194,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.splashLogoBackground,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: SIZES.xxl,
     elevation: 12,
   },
+
   title: {
     fontSize: 36,
     fontWeight: "700",
@@ -190,6 +204,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     marginBottom: SIZES.sm,
   },
+
   tagline: {
     fontSize: SIZES.body,
     color: COLORS.textSecondary,
