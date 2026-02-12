@@ -11,12 +11,15 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const containerOpacity = useRef(new Animated.Value(0)).current;
   const iconScale = useRef(new Animated.Value(0.6)).current;
   const iconFloat = useRef(new Animated.Value(0)).current;
-  const iconGlow = useRef(new Animated.Value(0.2)).current;
+  const glowScale = useRef(new Animated.Value(0.9)).current;
   const titleOpacity = useRef(new Animated.Value(0)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
   const titleSlide = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
+    let floatingLoop: Animated.CompositeAnimation;
+    let glowLoop: Animated.CompositeAnimation;
+
     // Entry animation
     Animated.sequence([
       Animated.timing(containerOpacity, {
@@ -49,13 +52,12 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       Animated.timing(taglineOpacity, {
         toValue: 1,
         duration: 500,
-        delay: 100,
         useNativeDriver: true,
       }),
     ]).start();
 
-    // Floating animation loop
-    Animated.loop(
+    // Floating animation
+    floatingLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(iconFloat, {
           toValue: -6,
@@ -70,25 +72,28 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           useNativeDriver: true,
         }),
       ]),
-    ).start();
+    );
 
-    // Subtle breathing glow
-    Animated.loop(
+    floatingLoop.start();
+
+    // Glow animation (using scale instead of shadowOpacity)
+    glowLoop = Animated.loop(
       Animated.sequence([
-        Animated.timing(iconGlow, {
-          toValue: 0.5,
+        Animated.timing(glowScale, {
+          toValue: 1.1,
           duration: 1500,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
-        Animated.timing(iconGlow, {
-          toValue: 0.2,
+        Animated.timing(glowScale, {
+          toValue: 0.9,
           duration: 1500,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
       ]),
-    ).start();
+    );
 
-    // Exit transition
+    glowLoop.start();
+
     const timer = setTimeout(() => {
       Animated.timing(containerOpacity, {
         toValue: 0,
@@ -97,19 +102,32 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       }).start(onFinish);
     }, 2600);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      floatingLoop?.stop();
+      glowLoop?.stop();
+    };
   }, []);
 
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.content, { opacity: containerOpacity }]}>
-        {/* Icon with glow */}
+        {/* Glow layer */}
+        <Animated.View
+          style={[
+            styles.glow,
+            {
+              transform: [{ scale: glowScale }],
+            },
+          ]}
+        />
+
+        {/* Icon */}
         <Animated.View
           style={[
             styles.iconWrapper,
             {
               transform: [{ scale: iconScale }, { translateY: iconFloat }],
-              shadowOpacity: iconGlow,
             },
           ]}
         >
@@ -147,6 +165,14 @@ const styles = StyleSheet.create({
   content: {
     alignItems: "center",
   },
+  glow: {
+    position: "absolute",
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: COLORS.primary,
+    opacity: 0.08,
+  },
   iconWrapper: {
     width: 120,
     height: 120,
@@ -155,9 +181,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: SIZES.xxl,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowRadius: 25,
     elevation: 12,
   },
   title: {
