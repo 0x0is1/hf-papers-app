@@ -125,7 +125,7 @@ const HomeScreen = () => {
       {/* Logo Row */}
       <View style={styles(COLORS, SIZES).logoRow}>
         <View style={styles(COLORS, SIZES).logoContainer}>
-          <MaterialIcons name="auto-awesome" size={28} color={COLORS.primary} />
+          <MaterialIcons name="home" size={28} color={COLORS.primary} />
         </View>
         <View style={styles(COLORS, SIZES).titleContainer}>
           <Text style={styles(COLORS, SIZES).appTitle}>HF Papers</Text>

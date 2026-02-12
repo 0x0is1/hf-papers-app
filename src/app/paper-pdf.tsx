@@ -5,7 +5,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { NativeModules } from "react-native";
 console.log("BlobUtil native module:", NativeModules.RNBlobUtil);
 console.log("PDF native module:", NativeModules.RCTPdf);
-import Pdf from "react-native-pdf";
+import Pdf from "react-native-pdf-crash-fix";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const PaperPDFScreen = () => {

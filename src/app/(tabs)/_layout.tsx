@@ -32,7 +32,7 @@ export default function TabLayout() {
           title: "Home",
           tabBarIcon: ({ color, focused }) => (
             <MaterialIcons
-              name={focused ? "auto-awesome" : "auto-awesome"}
+              name={focused ? "home" : "home"}
               size={24}
               color={color}
             />
