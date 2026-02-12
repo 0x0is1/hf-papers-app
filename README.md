@@ -4,7 +4,7 @@ A React Native application for browsing AI research papers from HuggingFace's Da
 
 ![HF Papers App](https://img.shields.io/badge/Expo-52.0.0-blue.svg)
 ![React Native](https://img.shields.io/badge/React%20Native-0.76.5-green.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue.svg) [![HF Papers Android Preview Build](https://github.com/0x0is1/hf-papers-app/actions/workflows/android-build.yml/badge.svg)](https://github.com/0x0is1/hf-papers-app/actions/workflows/android-build.yml) [![HF Papers OTA Update (Preview)](https://github.com/0x0is1/hf-papers-app/actions/workflows/expo-update.yml/badge.svg)](https://github.com/0x0is1/hf-papers-app/actions/workflows/expo-update.yml)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue.svg) [![Android APK Build](https://github.com/0x0is1/hf-papers-app/actions/workflows/android-build.yml/badge.svg)](https://github.com/0x0is1/hf-papers-app/actions/workflows/android-build.yml) [![Android OTA Update](https://github.com/0x0is1/hf-papers-app/actions/workflows/android-update.yml/badge.svg)](https://github.com/0x0is1/hf-papers-app/actions/workflows/android-update.yml)
 ## Features
 
 ### Core Features
