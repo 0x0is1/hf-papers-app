@@ -51,7 +51,7 @@
         {
           "android": {
             "kotlinVersion": "2.0.21",
-            "newArchEnabled": false,
+            "newArchEnabled": true,
             "compileSdkVersion": 35,
             "targetSdkVersion": 35,
             "buildToolsVersion": "35.0.0"
@@ -59,7 +59,8 @@
         }
       ],
       "@config-plugins/react-native-blob-util",
-      "@config-plugins/react-native-pdf"
+      "@config-plugins/react-native-pdf",
+      "expo-background-task"
     ],
     "extra": {
       "router": {

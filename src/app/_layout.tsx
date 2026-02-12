@@ -1,11 +1,22 @@
-import React, { useState, useCallback } from "react";
-import { Stack } from "expo-router";
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import EnhancedSplashScreen from "@/components/EnhancedSplashScreen";
 import * as SplashScreen from "expo-splash-screen";
+import * as Notifications from "expo-notifications";
+import { registerDailyPaperTask } from "@/services/dailyPaperBackgroundTask";
 
 SplashScreen.preventAutoHideAsync();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 function LayoutStack() {
   const { COLORS } = useTheme();
@@ -29,13 +40,55 @@ function LayoutStack() {
 }
 
 export default function RootLayout() {
+  const router = useRouter();
   const [showApp, setShowApp] = useState(false);
+  const hasHandledInitialNotification = useRef(false);
+  useEffect(() => {
+    const setupNotifications = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+
+      if (status !== "granted") {
+        console.log("Notification permission not granted.");
+        return;
+      }
+
+      await registerDailyPaperTask();
+    };
+
+    setupNotifications();
+  }, []);
+
+  useEffect(() => {
+    const response = Notifications.getLastNotificationResponse();
+
+    if (response && !hasHandledInitialNotification.current) {
+      hasHandledInitialNotification.current = true;
+
+      const data = response.notification.request.content.data;
+
+      if (data?.screen === "trending") {
+        router.replace("/(tabs)/trending");
+      }
+    }
+
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const data = response.notification.request.content.data;
+
+        if (data?.screen === "trending") {
+          router.replace("/(tabs)/trending");
+        }
+      },
+    );
+
+    return () => subscription.remove();
+  }, []);
 
   const handleSplashFinish = useCallback(() => {
     setShowApp(true);
   }, []);
 
-  const handleSplashLayout = useCallback(async () => {
+  const handleSplashMounted = useCallback(async () => {
     await SplashScreen.hideAsync();
   }, []);
 
@@ -44,7 +97,7 @@ export default function RootLayout() {
       {!showApp ? (
         <EnhancedSplashScreen
           onFinish={handleSplashFinish}
-          onMounted={handleSplashLayout}
+          onMounted={handleSplashMounted}
         />
       ) : (
         <LayoutStack />
