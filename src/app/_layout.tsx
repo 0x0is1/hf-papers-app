@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import EnhancedSplashScreen from "@/components/EnhancedSplashScreen";
-import { View, StyleSheet } from 'react-native';
+import * as SplashScreen from "expo-splash-screen";
+
+SplashScreen.preventAutoHideAsync();
 
 function LayoutStack() {
   const { COLORS } = useTheme();
@@ -18,31 +20,32 @@ function LayoutStack() {
           animation: "slide_from_right",
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="paper-details"
-          options={{ headerShown: false, presentation: "card" }}
-        />
-        <Stack.Screen
-          name="paper-pdf"
-          options={{ headerShown: false, presentation: "card" }}
-        />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="paper-details" />
+        <Stack.Screen name="paper-pdf" />
       </Stack>
     </>
   );
 }
 
 export default function RootLayout() {
-  const [isSplashVisible, setIsSplashVisible] = useState(true);
+  const [showApp, setShowApp] = useState(false);
 
-  const handleSplashFinish = () => {
-    setIsSplashVisible(false);
-  };
+  const handleSplashFinish = useCallback(() => {
+    setShowApp(true);
+  }, []);
+
+  const handleSplashLayout = useCallback(async () => {
+    await SplashScreen.hideAsync();
+  }, []);
 
   return (
     <ThemeProvider>
-      {isSplashVisible ? (
-        <EnhancedSplashScreen onFinish={handleSplashFinish} />
+      {!showApp ? (
+        <EnhancedSplashScreen
+          onFinish={handleSplashFinish}
+          onMounted={handleSplashLayout}
+        />
       ) : (
         <LayoutStack />
       )}

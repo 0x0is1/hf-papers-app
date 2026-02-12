@@ -3,12 +3,12 @@
     "name": "HF Papers",
     "slug": "hf-papers-app",
     "owner": "0x0is1",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "hfpapers",
-    "runtimeVersion": "1.0.0",
+    "runtimeVersion": "1.0.1",
     "updates": {
       "enabled": true,
       "checkAutomatically": "ON_LOAD",
@@ -56,7 +56,9 @@
             "buildToolsVersion": "35.0.0"
           }
         }
-      ]
+      ],
+      "@config-plugins/react-native-blob-util",
+      "@config-plugins/react-native-pdf"
     ],
     "extra": {
       "router": {

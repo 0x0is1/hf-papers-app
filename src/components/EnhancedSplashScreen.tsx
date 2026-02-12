@@ -1,13 +1,14 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Animated, Easing } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, Animated, Easing, Image } from "react-native";
 import { COLORS, SIZES } from "@/constants/theme";
+import appIcon from "@assets/adaptive-icon.png"
 
 interface SplashScreenProps {
   onFinish: () => void;
+  onMounted?: () => void;
 }
 
-const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
+const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, onMounted }) => {
   const containerOpacity = useRef(new Animated.Value(0)).current;
   const iconScale = useRef(new Animated.Value(0.6)).current;
   const iconFloat = useRef(new Animated.Value(0)).current;
@@ -17,6 +18,8 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const titleSlide = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
+    onMounted?.();
+
     let floatingLoop: Animated.CompositeAnimation;
     let glowLoop: Animated.CompositeAnimation;
 
@@ -56,7 +59,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       }),
     ]).start();
 
-    // Floating animation (icon + glow together)
+    // Floating animation
     floatingLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(iconFloat, {
@@ -75,7 +78,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     );
     floatingLoop.start();
 
-    // Glow breathing animation
+    // Glow animation
     glowLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(glowScale, {
@@ -110,7 +113,6 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.content, { opacity: containerOpacity }]}>
-        {/* ICON STACK */}
         <Animated.View
           style={[
             styles.iconStack,
@@ -120,24 +122,16 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           ]}
         >
           <View style={styles.iconCenter}>
-            {/* Glow */}
             <Animated.View
-              style={[
-                styles.glow,
-                {
-                  transform: [{ scale: glowScale }],
-                },
-              ]}
+              style={[styles.glow, { transform: [{ scale: glowScale }] }]}
             />
 
-            {/* Icon Circle */}
             <View style={styles.iconWrapper}>
-              <Ionicons name="paper-plane" size={72} color={COLORS.primary} />
+              <Image source={appIcon} style={styles.iconImage} />
             </View>
           </View>
         </Animated.View>
 
-        {/* Title */}
         <Animated.View
           style={{
             opacity: titleOpacity,
@@ -147,7 +141,6 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           <Text style={styles.title}>HF Papers</Text>
         </Animated.View>
 
-        {/* Tagline */}
         <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>
           Research Papers Simplified
         </Animated.Text>
@@ -167,29 +160,31 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   content: {
     alignItems: "center",
   },
-
-  iconStack: {
-    marginBottom: SIZES.xxl,
-  },
-
-  iconCenter: {
+  iconImage: {
     width: ICON_SIZE,
     height: ICON_SIZE,
+    objectFit: "contain",
     justifyContent: "center",
     alignItems: "center",
   },
-
+  iconStack: {
+    marginBottom: SIZES.xxl,
+  },
+  iconCenter: {
+    width: ICON_SIZE + (ICON_SIZE * 0.5),
+    height: ICON_SIZE + (ICON_SIZE * 0.5),
+    justifyContent: "center",
+    alignItems: "center",
+  },
   glow: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: ICON_SIZE / 2,
+    borderRadius: "100%",
     backgroundColor: COLORS.primary,
     opacity: 0.08,
   },
-
   iconWrapper: {
     width: ICON_SIZE,
     height: ICON_SIZE,
@@ -199,7 +194,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 12,
   },
-
   title: {
     fontSize: 36,
     fontWeight: "700",
@@ -207,7 +201,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     marginBottom: SIZES.sm,
   },
-
   tagline: {
     fontSize: SIZES.body,
     color: COLORS.textSecondary,
