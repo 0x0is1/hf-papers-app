@@ -57,6 +57,9 @@
             "lint": {
               "abortOnError": false,
               "checkReleaseBuilds": false
+            },
+            "gradleProperties": {
+              "org.gradle.jvmargs": "-Xmx6g -XX:MaxMetaspaceSize=2g -Dkotlin.daemon.jvm.options=-Xmx4g"
             }
           }
         }
