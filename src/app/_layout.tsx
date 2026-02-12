@@ -6,6 +6,7 @@ import EnhancedSplashScreen from "@/components/EnhancedSplashScreen";
 import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
 import { registerDailyPaperTask } from "@/services/dailyPaperBackgroundTask";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -67,7 +68,9 @@ export default function RootLayout() {
       const data = response.notification.request.content.data;
 
       if (data?.screen === "trending") {
-        router.replace("/(tabs)/trending");
+        setTimeout(() => {
+          router.replace("/(tabs)/trending");
+        }, 300);
       }
     }
 
@@ -93,15 +96,17 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <ThemeProvider>
-      {!showApp ? (
-        <EnhancedSplashScreen
-          onFinish={handleSplashFinish}
-          onMounted={handleSplashMounted}
-        />
-      ) : (
-        <LayoutStack />
-      )}
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        {!showApp ? (
+          <EnhancedSplashScreen
+            onFinish={handleSplashFinish}
+            onMounted={handleSplashMounted}
+          />
+        ) : (
+          <LayoutStack />
+        )}
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

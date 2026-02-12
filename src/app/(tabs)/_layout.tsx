@@ -2,9 +2,13 @@ import { Tabs } from "expo-router";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/contexts/ThemeContext";
 import { SIZES } from "@/constants/theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const { COLORS } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  const TAB_HEIGHT = 60 + insets.bottom;
 
   return (
     <Tabs
@@ -15,11 +19,12 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: COLORS.tabBarBackground,
           borderTopWidth: 0,
-          borderTopColor: COLORS.border,
-          height: 60,
-          paddingBottom: 8,
+          height: TAB_HEIGHT,
+          paddingBottom: insets.bottom,
           paddingTop: 8,
+          elevation: 12,
         },
+
         tabBarLabelStyle: {
           fontSize: SIZES.small,
           fontWeight: "600",
@@ -30,12 +35,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color, focused }) => (
-            <MaterialIcons
-              name={focused ? "home" : "home"}
-              size={24}
-              color={color}
-            />
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="home" size={24} color={color} />
           ),
         }}
       />
@@ -54,7 +55,7 @@ export default function TabLayout() {
         name="search"
         options={{
           title: "Search",
-          tabBarIcon: ({ color, focused }) => (
+          tabBarIcon: ({ color }) => (
             <MaterialIcons name="explore" size={24} color={color} />
           ),
         }}
