@@ -25,7 +25,6 @@ const PaperPDFScreen = () => {
   }
   return (
     <View style={styles(COLORS, SIZES).container}>
-      {/* Header */}
       <View style={styles(COLORS, SIZES).header}>
         <TouchableOpacity onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} color={COLORS.text} />

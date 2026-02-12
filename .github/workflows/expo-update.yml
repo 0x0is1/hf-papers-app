@@ -35,6 +35,7 @@ jobs:
           echo "Message: $COMMIT_MESSAGE"
 
           eas update \
+            --platform android \
             --branch preview \
             --non-interactive \
             --message "$COMMIT_MESSAGE"
