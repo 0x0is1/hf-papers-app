@@ -24,6 +24,7 @@ jobs:
         uses: expo/expo-github-action@v8
         with:
           token: ${{ secrets.EXPO_TOKEN }}
+          eas-version: latest
 
       - name: Setup Java 17
         uses: actions/setup-java@v4

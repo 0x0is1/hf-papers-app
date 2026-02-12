@@ -22,11 +22,12 @@ jobs:
         uses: expo/expo-github-action@v8
         with:
           token: ${{ secrets.EXPO_TOKEN }}
+          eas-version: latest
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Publish OTA Update to Preview Branch
+      - name: Publish OTA to Preview Branch
         run: |
           COMMIT_MESSAGE=$(git log -1 --pretty=%s)
 
