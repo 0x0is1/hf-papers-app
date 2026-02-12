@@ -45,7 +45,7 @@ export async function registerDailyPaperTask() {
 
   if (!isRegistered) {
     await BackgroundTask.registerTaskAsync(DAILY_PAPER_TASK, {
-      minimumInterval: 60 * 60 * 24, // once per day
+      minimumInterval: 60 * 24, // once per day
     });
 
     console.log("Daily paper task registered.");
