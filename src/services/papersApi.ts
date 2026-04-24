@@ -1,8 +1,5 @@
 const BASE_URL = "https://huggingface.co";
-const HF_BASE_URL = "https://huggingface.co";
 const TIMEOUT = 15000;
-
-/* -------------------- Types -------------------- */
 
 export interface Author {
   _id: string;
@@ -53,12 +50,10 @@ export interface PaperDetails extends Paper {
   relatedSpaces?: any[];
 }
 
-/* -------------------- Helpers -------------------- */
-
 function normalizeAvatarUrl(url?: string): string | undefined {
   if (!url) return undefined;
   if (url.startsWith("http")) return url;
-  if (url.startsWith("/")) return `${HF_BASE_URL}${url}`;
+  if (url.startsWith("/")) return `${BASE_URL}${url}`;
   return undefined;
 }
 
@@ -77,22 +72,27 @@ function normalizeAuthor(raw: any): Author {
 }
 
 function normalizePaper(raw: any): Paper {
-  const paper = raw.paper ?? raw;
+  const paper = raw?.paper ?? raw;
+  const arxivId = paper?.id ?? paper?.arxivId ?? "";
+  const numComments = raw?.numComments ?? paper?.numComments ?? 0;
+
   return {
-    _id: paper._id ?? paper.id ?? "",
-    arxivId: paper.id ?? paper.arxivId ?? "",
-    title: paper.title,
-    publishedAt: paper.publishedAt,
-    summary: paper.summary,
-    upvotes: paper.upvotes ?? 0,
-    numComments: raw.numComments ?? paper.numComments ?? 0,
-    thumbnail: raw.thumbnail ?? paper.thumbnail,
-    authors: Array.isArray(paper.authors)
+    _id: paper?._id ?? paper?.id ?? "",
+    arxivId,
+    title: paper?.title,
+    publishedAt: paper?.publishedAt,
+    summary: paper?.summary,
+    upvotes: paper?.upvotes ?? 0,
+    numComments,
+    thumbnail: raw?.thumbnail ?? paper?.thumbnail,
+    authors: Array.isArray(paper?.authors)
       ? paper.authors.map(normalizeAuthor)
       : [],
-    mediaUrls: paper.mediaUrls,
-    githubUrl: paper.githubRepo,
-    submittedBy: paper.submittedOnDailyBy
+    mediaUrls: paper?.mediaUrls,
+    githubUrl: paper?.githubRepo,
+    arxivUrl: arxivId ? `https://arxiv.org/abs/${arxivId}` : undefined,
+    pdfUrl: arxivId ? `https://arxiv.org/pdf/${arxivId}.pdf` : undefined,
+    submittedBy: paper?.submittedOnDailyBy
       ? {
           avatarUrl: normalizeAvatarUrl(
             paper.submittedOnDailyBy.avatarUrl
@@ -106,12 +106,18 @@ function normalizePaper(raw: any): Paper {
 
 function buildQuery(params?: Record<string, any>) {
   if (!params) return "";
-  const query = new URLSearchParams(
-    Object.entries(params).reduce((acc, [k, v]) => {
-      if (v !== undefined && v !== null) acc[k] = String(v);
-      return acc;
-    }, {} as Record<string, string>)
-  ).toString();
+  const searchParams = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null) continue;
+    if (Array.isArray(v)) {
+      for (const item of v) {
+        searchParams.append(k, String(item));
+      }
+    } else {
+      searchParams.append(k, String(v));
+    }
+  }
+  const query = searchParams.toString();
   return query ? `?${query}` : "";
 }
 
@@ -120,13 +126,11 @@ async function fetchJSON<T>(url: string): Promise<T> {
   const id = setTimeout(() => controller.abort(), TIMEOUT);
 
   try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-    });
+    const res = await fetch(url, { signal: controller.signal });
 
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`HTTP ${res.status}: ${text}`);
+      throw { status: res.status, message: text };
     }
 
     return await res.json();
@@ -134,8 +138,6 @@ async function fetchJSON<T>(url: string): Promise<T> {
     clearTimeout(id);
   }
 }
-
-/* -------------------- Service -------------------- */
 
 class PapersAPIService {
   async getDailyPapers(
@@ -163,7 +165,7 @@ class PapersAPIService {
 
     const papers = Array.isArray(raw)
       ? raw.map(normalizePaper)
-      : raw.papers?.map(normalizePaper) ?? [];
+      : raw?.papers?.map(normalizePaper) ?? [];
 
     return { papers };
   }
@@ -171,11 +173,20 @@ class PapersAPIService {
   async getPaperDetails(arxivId: string): Promise<PaperDetails> {
     const url = `${BASE_URL}/api/papers/${arxivId}`;
     const raw = await fetchJSON<any>(url);
-    return normalizePaper(raw);
+    const base = normalizePaper(raw);
+
+    return {
+      ...base,
+      abstract: raw?.abstract,
+      comments: raw?.comments,
+      relatedModels: raw?.relatedModels,
+      relatedDatasets: raw?.relatedDatasets,
+      relatedSpaces: raw?.relatedSpaces,
+    };
   }
 
   async getTrendingPapers(limit: number = 50): Promise<Paper[]> {
-    const res = await this.getDailyPapers(undefined, limit, sort="trending");
+    const res = await this.getDailyPapers(undefined, limit, "trending");
     return [...res.papers];
   }
 
