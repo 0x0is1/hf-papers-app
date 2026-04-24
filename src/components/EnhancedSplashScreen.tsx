@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Animated, Easing, Image } from "react-native";
 import { COLORS, SIZES } from "@/constants/theme";
-import appIcon from "@assets/adaptive-icon.png"
+import appIcon from "@assets/adaptive-icon.png";
+import * as Updates from "expo-updates";
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -16,6 +17,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, onMounted }) => {
   const titleOpacity = useRef(new Animated.Value(0)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
   const titleSlide = useRef(new Animated.Value(20)).current;
+  const [updateAvailable, setUpdateAvailable] = useState(false);
 
   useEffect(() => {
     onMounted?.();
@@ -95,16 +97,40 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, onMounted }) => {
     );
     glowLoop.start();
 
-    const timer = setTimeout(() => {
-      Animated.timing(containerOpacity, {
-        toValue: 0,
-        duration: 400,
-        useNativeDriver: true,
-      }).start(onFinish);
-    }, 2600);
+    const handleUpdateAndFinish = async () => {
+      const startTime = Date.now();
+      const MIN_DURATION = 3000; // Minimum splash duration
+
+      try {
+        if (!__DEV__) {
+          const update = await Updates.checkForUpdateAsync();
+          if (update.isAvailable) {
+            setUpdateAvailable(true);
+            await Updates.fetchUpdateAsync();
+            await Updates.reloadAsync();
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Error checking for updates:", error);
+      }
+
+      // Calculate remaining time for animation
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, MIN_DURATION - elapsed);
+
+      setTimeout(() => {
+        Animated.timing(containerOpacity, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }).start(onFinish);
+      }, remaining);
+    };
+
+    handleUpdateAndFinish();
 
     return () => {
-      clearTimeout(timer);
       floatingLoop?.stop();
       glowLoop?.stop();
     };
@@ -144,6 +170,12 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, onMounted }) => {
         <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>
           Research Papers Simplified
         </Animated.Text>
+
+        {!__DEV__ && (
+          <Animated.Text style={[styles.tagline, { opacity: taglineOpacity, marginTop: SIZES.sm, fontSize: 14 }]}>
+            {updateAvailable ? "Downloading update..." : "Checking for updates..."}
+          </Animated.Text>
+        )}
       </Animated.View>
     </View>
   );
