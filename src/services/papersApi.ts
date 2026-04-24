@@ -140,9 +140,10 @@ async function fetchJSON<T>(url: string): Promise<T> {
 class PapersAPIService {
   async getDailyPapers(
     date?: string,
-    limit: number = 50
+    limit: number = 50,
+    sort: string = "publishedAt"
   ): Promise<DailyPapersResponse> {
-    const params: any = { limit };
+    const params: any = { limit, sort };
     if (date) params.date = date;
 
     const url = `${BASE_URL}/api/daily_papers${buildQuery(params)}`;
@@ -174,8 +175,8 @@ class PapersAPIService {
   }
 
   async getTrendingPapers(limit: number = 50): Promise<Paper[]> {
-    const res = await this.getDailyPapers(undefined, limit);
-    return [...res.papers].sort((a, b) => b.upvotes - a.upvotes);
+    const res = await this.getDailyPapers(undefined, limit, sort="trending");
+    return [...res.papers];
   }
 
   async getRecentPapers(limit: number = 50): Promise<Paper[]> {
