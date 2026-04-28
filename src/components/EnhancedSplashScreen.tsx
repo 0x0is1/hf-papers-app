@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Animated, Easing, Image } from "react-native";
+import { View, Text, StyleSheet, Animated, Easing, Image, ToastAndroid } from "react-native";
 import { COLORS, SIZES } from "@/constants/theme";
 import appIcon from "@assets/adaptive-icon.png";
 import * as Updates from "expo-updates";
@@ -112,7 +112,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, onMounted }) => {
           }
         }
       } catch (error) {
-        console.error("Error checking for updates:", error);
+        ToastAndroid.show("Error checking for updates: " + error, ToastAndroid.SHORT);
       }
 
       // Calculate remaining time for animation
@@ -169,7 +169,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, onMounted }) => {
         </Animated.View>
 
         <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>
-          Research Papers Simplified
+          AI Papers Simplified
         </Animated.Text>
 
         {!__DEV__ && (
