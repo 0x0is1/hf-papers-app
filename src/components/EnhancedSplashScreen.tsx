@@ -134,6 +134,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, onMounted }) => {
       floatingLoop?.stop();
       glowLoop?.stop();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

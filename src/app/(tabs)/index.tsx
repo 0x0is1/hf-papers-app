@@ -31,7 +31,7 @@ const HomeScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [date, setDate] = useState<Date>(today);
 
-  const fetchPapers = async () => {
+  const fetchPapers = useCallback(async () => {
     try {
       setError(null);
 
@@ -47,17 +47,17 @@ const HomeScreen = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [date]);
 
   useEffect(() => {
     setLoading(true);
     fetchPapers();
-  }, [date]);
+  }, [fetchPapers]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchPapers();
-  }, [date]);
+  }, [fetchPapers]);
 
   const changeDate = (delta: number) => {
     const next = new Date(date);
@@ -78,7 +78,7 @@ const HomeScreen = () => {
 
   const renderHeader = () => (
     <View style={styles(COLORS, SIZES).headerContainer}>
-      <View style={styles(COLORS, SIZES).logoRow}>
+      {/* <View style={styles(COLORS, SIZES).logoRow}>
         <View style={styles(COLORS, SIZES).logoContainer}>
           <MaterialIcons name="home" size={28} color={COLORS.primary} />
         </View>
@@ -86,7 +86,7 @@ const HomeScreen = () => {
           <Text style={styles(COLORS, SIZES).appTitle}>HF Papers</Text>
           <Text style={styles(COLORS, SIZES).appSubtitle}>Daily Research</Text>
         </View>
-      </View>
+      </View> */}
 
       <View style={styles(COLORS, SIZES).dateNavBar}>
         <TouchableOpacity
@@ -114,7 +114,7 @@ const HomeScreen = () => {
           style={[
             styles(COLORS, SIZES).dateNavBtn,
             (formatDate(date) === todayStr || loading) &&
-              styles(COLORS, SIZES).disabledBtn,
+            styles(COLORS, SIZES).disabledBtn,
           ]}
           disabled={formatDate(date) === todayStr || loading}
           onPress={() => changeDate(1)}

@@ -85,7 +85,7 @@ export default function RootLayout() {
     );
 
     return () => subscription.remove();
-  }, []);
+  }, [router]);
 
   const handleSplashFinish = useCallback(() => {
     setShowApp(true);

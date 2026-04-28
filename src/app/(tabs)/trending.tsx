@@ -8,7 +8,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import PaperCard from '@/components/PaperCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorMessage from '@/components/ErrorMessage';
@@ -55,14 +55,13 @@ const TrendingScreen = () => {
 
   const renderHeader = () => (
     <View style={styles(COLORS, SIZES).headerContainer}>
-      {/* Logo Row */}
       <View style={styles(COLORS, SIZES).logoRow}>
-        <View style={styles(COLORS, SIZES).logoContainer}>
+        {/* <View style={styles(COLORS, SIZES).logoContainer}>
           <MaterialIcons name="whatshot" size={28} color={COLORS.success} />
-        </View>
+        </View> */}
         <View style={styles(COLORS, SIZES).titleContainer}>
           <Text style={styles(COLORS, SIZES).appTitle}>Trending</Text>
-          <Text style={styles(COLORS, SIZES).appSubtitle}>Most upvoted papers</Text>
+          {/* <Text style={styles(COLORS, SIZES).appSubtitle}>Most upvoted papers</Text> */}
         </View>
       </View>
     </View>

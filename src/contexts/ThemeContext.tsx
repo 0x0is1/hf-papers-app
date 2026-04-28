@@ -36,14 +36,13 @@ const ThemeContext = createContext<ThemeValue>({
   LAYOUT,
   ANIMATION,
   isDark: true,
-  toggleTheme: () => {},
+  toggleTheme: () => { },
 });
 
 const STORAGE_KEY = "APP_THEME_MODE";
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [isDark, setIsDark] = useState(true);
-  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -55,7 +54,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (e) {
         console.log("Theme loading error:", e);
       }
-      setHydrated(true);
     })();
   }, []);
 

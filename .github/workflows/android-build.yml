@@ -67,5 +67,5 @@ jobs:
 
       - name: Summary
         run: |
-          echo "## ✅ APK Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "## APK Build Complete" >> $GITHUB_STEP_SUMMARY
           echo "Download from Artifacts section above." >> $GITHUB_STEP_SUMMARY

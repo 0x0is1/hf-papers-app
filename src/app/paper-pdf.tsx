@@ -1,12 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, NativeModules } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
-import { NativeModules } from "react-native";
-console.log("BlobUtil native module:", NativeModules.RNBlobUtil);
-console.log("PDF native module:", NativeModules.RCTPdf);
 import Pdf from "react-native-pdf";
 import { useTheme } from "@/contexts/ThemeContext";
+
+console.log("BlobUtil native module:", NativeModules.RNBlobUtil);
+console.log("PDF native module:", NativeModules.RCTPdf);
 
 const PaperPDFScreen = () => {
   const router = useRouter();

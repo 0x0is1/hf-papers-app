@@ -9,7 +9,7 @@ import {
   Linking,
   StatusBar,
 } from "react-native";
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const SettingsScreen = () => {
@@ -67,16 +67,16 @@ const SettingsScreen = () => {
   return (
     <View style={styles(COLORS, SIZES).container}>
       <StatusBar barStyle={COLORS.background === '#FAFAFC' ? 'dark-content' : 'light-content'} />
-      
+
       {/* Fixed Header */}
       <View style={styles(COLORS, SIZES).headerContainer}>
         <View style={styles(COLORS, SIZES).logoRow}>
-          <View style={styles(COLORS, SIZES).logoContainer}>
+          {/* <View style={styles(COLORS, SIZES).logoContainer}>
             <Ionicons name="options" size={28} color={COLORS.primary} />
-          </View>
+          </View> */}
           <View style={styles(COLORS, SIZES).titleContainer}>
             <Text style={styles(COLORS, SIZES).appTitle}>Settings</Text>
-            <Text style={styles(COLORS, SIZES).appSubtitle}>Customize your experience</Text>
+            {/* <Text style={styles(COLORS, SIZES).appSubtitle}>Customize your experience</Text> */}
           </View>
         </View>
       </View>
@@ -95,7 +95,7 @@ const SettingsScreen = () => {
               </View>
               <View style={styles(COLORS, SIZES).appInfo}>
                 <Text style={styles(COLORS, SIZES).appName}>HF Papers</Text>
-                <Text style={styles(COLORS, SIZES).appVersion}>Version 0.0.1</Text>
+                <Text style={styles(COLORS, SIZES).appVersion}>Version 1.0.1</Text>
                 <Text style={styles(COLORS, SIZES).appDescription}>
                   Your daily dose of AI research
                 </Text>
@@ -209,7 +209,7 @@ const SettingsScreen = () => {
         {/* Footer */}
         <View style={styles(COLORS, SIZES).footer}>
           <Text style={styles(COLORS, SIZES).footerText}>
-            Made with ❤️ using HuggingFace API by NYS
+            Made with ❤️ using HF Hub API by Algocry
           </Text>
         </View>
       </ScrollView>

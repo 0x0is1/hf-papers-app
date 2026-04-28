@@ -100,7 +100,7 @@ const SearchScreen = () => {
       <View style={styles(COLORS, SIZES).emptyContainer}>
         <MaterialIcons name="search" size={64} color={COLORS.textTertiary} />
         <Text style={styles(COLORS, SIZES).emptyText}>
-          No results for "{searchQuery}"
+          No results for &quot;{searchQuery}&quot;
         </Text>
         <Text style={styles(COLORS, SIZES).emptySubtext}>
           Try different keywords

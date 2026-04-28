@@ -32,17 +32,11 @@ const PaperDetailsScreen = () => {
   const [paper, setPaper] = useState<PaperDetails | null>(initialPaper);
   const [loading, setLoading] = useState(!initialPaper);
   const [error, setError] = useState<string | null>(null);
-  const [showPDF, setShowPDF] = useState(false);
   const [showAllAuthors, setShowAllAuthors] = useState(false);
 
   const arxivId = paper?.arxivId || paper?._id || params.arxivId || undefined;
 
-  useEffect(() => {
-    if (!arxivId) return;
-    fetchPaperDetails();
-  }, [arxivId]);
-
-  const fetchPaperDetails = async () => {
+  const fetchPaperDetails = React.useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -60,7 +54,14 @@ const PaperDetailsScreen = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [arxivId]);
+
+  useEffect(() => {
+    if (!arxivId) return;
+    fetchPaperDetails();
+  }, [arxivId, fetchPaperDetails]);
+
+
 
   const handleOpenURL = (url: string) => Linking.openURL(url);
 
