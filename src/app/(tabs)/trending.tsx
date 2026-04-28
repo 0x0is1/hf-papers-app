@@ -142,11 +142,10 @@ const styles = (COLORS: any, SIZES: any) =>
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      paddingVertical: SIZES.xs,
     },
     appTitle: {
-      fontSize: SIZES.h2,
-      fontWeight: "800",
+      fontSize: SIZES.h3,
+      fontWeight: "700",
       color: COLORS.text,
       letterSpacing: 0.5,
     },
