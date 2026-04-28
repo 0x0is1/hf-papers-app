@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import PaperCard from "@/components/PaperCard";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -76,8 +77,10 @@ const HomeScreen = () => {
     });
   };
 
+  const insets = useSafeAreaInsets();
+
   const renderHeader = () => (
-    <View style={styles(COLORS, SIZES).headerContainer}>
+    <View style={[styles(COLORS, SIZES).headerContainer, { paddingTop: Math.max(insets.top + SIZES.sm, SIZES.lg) }]}>
       {/* <View style={styles(COLORS, SIZES).logoRow}>
         <View style={styles(COLORS, SIZES).logoContainer}>
           <MaterialIcons name="home" size={28} color={COLORS.primary} />

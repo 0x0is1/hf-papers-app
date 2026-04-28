@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import PaperCard from "@/components/PaperCard";
 import SearchBar from "@/components/SearchBar";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -30,6 +31,7 @@ const SUGGESTED_SEARCHES = [
 const SearchScreen = () => {
   const router = useRouter();
   const { COLORS, SIZES } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const [papers, setPapers] = useState<Paper[]>([]);
   const [loading, setLoading] = useState(false);
@@ -70,7 +72,7 @@ const SearchScreen = () => {
   };
 
   const renderHeader = () => (
-    <View style={styles(COLORS, SIZES).headerContainer}>
+    <View style={[styles(COLORS, SIZES).headerContainer, { paddingTop: Math.max(insets.top + SIZES.sm, SIZES.lg) }]}>
       <SearchBar onSearch={handleSearch} />
     </View>
   );

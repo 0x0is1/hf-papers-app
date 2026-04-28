@@ -10,10 +10,12 @@ import {
   StatusBar,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const SettingsScreen = () => {
   const { COLORS, SIZES, isDark, toggleTheme } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
 
@@ -69,7 +71,7 @@ const SettingsScreen = () => {
       <StatusBar barStyle={COLORS.background === '#FAFAFC' ? 'dark-content' : 'light-content'} />
 
       {/* Fixed Header */}
-      <View style={styles(COLORS, SIZES).headerContainer}>
+      <View style={[styles(COLORS, SIZES).headerContainer, { paddingTop: Math.max(insets.top + SIZES.sm, SIZES.lg) }]}>
         <View style={styles(COLORS, SIZES).logoRow}>
           {/* <View style={styles(COLORS, SIZES).logoContainer}>
             <Ionicons name="options" size={28} color={COLORS.primary} />

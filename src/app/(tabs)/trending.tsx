@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import PaperCard from '@/components/PaperCard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorMessage from '@/components/ErrorMessage';
@@ -53,15 +54,13 @@ const TrendingScreen = () => {
     });
   };
 
+  const insets = useSafeAreaInsets();
+
   const renderHeader = () => (
-    <View style={styles(COLORS, SIZES).headerContainer}>
+    <View style={[styles(COLORS, SIZES).headerContainer, { paddingTop: Math.max(insets.top + SIZES.sm, SIZES.lg) }]}>
       <View style={styles(COLORS, SIZES).logoRow}>
-        {/* <View style={styles(COLORS, SIZES).logoContainer}>
-          <MaterialIcons name="whatshot" size={28} color={COLORS.success} />
-        </View> */}
         <View style={styles(COLORS, SIZES).titleContainer}>
           <Text style={styles(COLORS, SIZES).appTitle}>Trending</Text>
-          {/* <Text style={styles(COLORS, SIZES).appSubtitle}>Most upvoted papers</Text> */}
         </View>
       </View>
     </View>
@@ -140,12 +139,16 @@ const styles = (COLORS: any, SIZES: any) =>
       alignItems: "center",
     },
     titleContainer: {
-      marginLeft: SIZES.md,
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: SIZES.xs,
     },
     appTitle: {
-      fontSize: SIZES.h3,
-      fontWeight: "700",
+      fontSize: SIZES.h2,
+      fontWeight: "800",
       color: COLORS.text,
+      letterSpacing: 0.5,
     },
     appSubtitle: {
       fontSize: SIZES.caption,
