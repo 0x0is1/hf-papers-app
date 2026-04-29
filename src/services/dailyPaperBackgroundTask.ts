@@ -74,8 +74,8 @@ export async function registerDailyPaperTask() {
   }
 
   await BackgroundTask.registerTaskAsync(DAILY_PAPER_TASK, {
-    minimumInterval: 60 * 2, // 2 minutes for testing
+    minimumInterval: 60 * 60 * 3, // 3 hours
   });
 
-  await saveBgLog("Daily paper task registered with 2m interval.");
+  await saveBgLog("Daily paper task registered with 3h interval.");
 }
