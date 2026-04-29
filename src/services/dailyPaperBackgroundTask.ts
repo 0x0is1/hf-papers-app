@@ -16,9 +16,8 @@ export const saveBgLog = async (msg: string) => {
     const logsArray = prev ? JSON.parse(prev) : [];
     logsArray.unshift(`[${new Date().toLocaleTimeString()}] ${msg}`);
     await AsyncStorage.setItem('@bg_logs', JSON.stringify(logsArray.slice(0, 30)));
-  } catch (e) {}
+  } catch {}
 };
-const LAST_NOTIFIED_KEY = "@last_notified_date_test_3";
 
 TaskManager.defineTask(DAILY_PAPER_TASK, async () => {
   try {

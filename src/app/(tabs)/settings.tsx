@@ -25,7 +25,7 @@ const SettingsScreen = () => {
     try {
       const prev = await AsyncStorage.getItem('@bg_logs');
       if (prev) setBgLogs(JSON.parse(prev));
-    } catch(e) {}
+    } catch {}
   };
 
   const handleOpenURL = (url: string) => {
