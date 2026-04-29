@@ -6,7 +6,7 @@ import { ToastAndroid } from "react-native";
 import papersApi from "@/services/papersApi";
 
 const DAILY_PAPER_TASK = "DAILY_PAPER_FETCH_TASK";
-const LAST_NOTIFIED_KEY = "@last_notified_date_test_3";
+const LAST_NOTIFIED_KEY = "@last_notified_date_test_4";
 
 export const saveBgLog = async (msg: string) => {
   console.log(msg);
@@ -74,8 +74,8 @@ export async function registerDailyPaperTask() {
   }
 
   await BackgroundTask.registerTaskAsync(DAILY_PAPER_TASK, {
-    minimumInterval: 60 * 60 * 3, // 3 hours
+    minimumInterval: 60, // 1 minute (though OS enforces 15m)
   });
 
-  await saveBgLog("Daily paper task registered with 3h interval.");
+  await saveBgLog("Daily paper task registered with 1m interval.");
 }
