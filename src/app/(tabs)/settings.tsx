@@ -12,12 +12,21 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/contexts/ThemeContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SettingsScreen = () => {
   const { COLORS, SIZES, isDark, toggleTheme } = useTheme();
   const insets = useSafeAreaInsets();
 
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+  const [bgLogs, setBgLogs] = React.useState<string[]>([]);
+
+  const fetchLogs = async () => {
+    try {
+      const prev = await AsyncStorage.getItem('@bg_logs');
+      if (prev) setBgLogs(JSON.parse(prev));
+    } catch(e) {}
+  };
 
   const handleOpenURL = (url: string) => {
     Linking.openURL(url);
@@ -205,8 +214,26 @@ const SettingsScreen = () => {
               subtitle="Learn more"
               onPress={() => handleOpenURL("https://huggingface.co/about")}
             />
+            <View style={styles(COLORS, SIZES).divider} />
+            <SettingItem
+              icon="developer-mode"
+              title="Developer Logs"
+              subtitle="View background task logs"
+              onPress={fetchLogs}
+            />
           </View>
         </View>
+
+        {bgLogs.length > 0 && (
+          <View style={styles(COLORS, SIZES).section}>
+            <Text style={styles(COLORS, SIZES).sectionTitle}>Recent Logs</Text>
+            <View style={[styles(COLORS, SIZES).card, { padding: SIZES.md }]}>
+              {bgLogs.map((log, i) => (
+                <Text key={i} style={{ color: COLORS.textSecondary, fontSize: 10, marginBottom: 4 }}>{log}</Text>
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* Footer */}
         <View style={styles(COLORS, SIZES).footer}>

@@ -2,17 +2,31 @@ import * as TaskManager from "expo-task-manager";
 import * as BackgroundTask from "expo-background-task";
 import * as Notifications from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ToastAndroid } from "react-native";
 import papersApi from "@/services/papersApi";
 
 const DAILY_PAPER_TASK = "DAILY_PAPER_FETCH_TASK";
 const LAST_NOTIFIED_KEY = "@last_notified_date_test_3";
 
+export const saveBgLog = async (msg: string) => {
+  console.log(msg);
+  try {
+    ToastAndroid.show(msg, ToastAndroid.SHORT);
+    const prev = await AsyncStorage.getItem('@bg_logs');
+    const logsArray = prev ? JSON.parse(prev) : [];
+    logsArray.unshift(`[${new Date().toLocaleTimeString()}] ${msg}`);
+    await AsyncStorage.setItem('@bg_logs', JSON.stringify(logsArray.slice(0, 30)));
+  } catch (e) {}
+};
+const LAST_NOTIFIED_KEY = "@last_notified_date_test_3";
+
 TaskManager.defineTask(DAILY_PAPER_TASK, async () => {
   try {
+    await saveBgLog("Task started.");
     const recentPapers = await papersApi.getRecentPapers(50);
     if (!recentPapers || recentPapers.length === 0) {
-      console.log("No recent papers fetched.");
-      return BackgroundTask.BackgroundTaskResult.NoData;
+      await saveBgLog("No recent papers fetched.");
+      return BackgroundTask.BackgroundTaskResult.Success;
     }
 
     // Find the most recent published date among the papers
@@ -38,14 +52,14 @@ TaskManager.defineTask(DAILY_PAPER_TASK, async () => {
 
       // Mark this date as notified
       await AsyncStorage.setItem(LAST_NOTIFIED_KEY, latestDate);
-      console.log(`Notification sent for ${latestDate} (${papersForLatestDate.length} papers).`);
+      await saveBgLog(`Notification sent for ${latestDate} (${papersForLatestDate.length} papers).`);
     } else {
-      console.log(`Already notified for ${latestDate}. Skipping.`);
+      await saveBgLog(`Already notified for ${latestDate}. Skipping.`);
     }
 
     return BackgroundTask.BackgroundTaskResult.Success;
-  } catch (error) {
-    console.error("Background task failed:", error);
+  } catch (error: any) {
+    await saveBgLog(`Background task failed: ${error.message || error}`);
     return BackgroundTask.BackgroundTaskResult.Failed;
   }
 });
@@ -54,7 +68,7 @@ export async function registerDailyPaperTask() {
   const status = await BackgroundTask.getStatusAsync();
 
   if (status === BackgroundTask.BackgroundTaskStatus.Restricted) {
-    console.log("Background tasks are restricted.");
+    await saveBgLog("Background tasks are restricted.");
     return;
   }
 
@@ -62,5 +76,5 @@ export async function registerDailyPaperTask() {
     minimumInterval: 60 * 2, // 2 minutes for testing
   });
 
-  console.log("Daily paper task registered with 2m interval.");
+  await saveBgLog("Daily paper task registered with 2m interval.");
 }
