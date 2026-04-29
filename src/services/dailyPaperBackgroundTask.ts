@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import papersApi from "@/services/papersApi";
 
 const DAILY_PAPER_TASK = "DAILY_PAPER_FETCH_TASK";
-const LAST_NOTIFIED_KEY = "@last_notified_date";
+const LAST_NOTIFIED_KEY = "@last_notified_date_test_2";
 
 TaskManager.defineTask(DAILY_PAPER_TASK, async () => {
   try {
@@ -52,15 +52,9 @@ export async function registerDailyPaperTask() {
     return;
   }
 
-  const isRegistered = await TaskManager.isTaskRegisteredAsync(
-    DAILY_PAPER_TASK
-  );
+  await BackgroundTask.registerTaskAsync(DAILY_PAPER_TASK, {
+    minimumInterval: 60 * 2, // 2 minutes for testing
+  });
 
-  if (!isRegistered) {
-    await BackgroundTask.registerTaskAsync(DAILY_PAPER_TASK, {
-      minimumInterval: 60 * 2, // 2 minutes for testing
-    });
-
-    console.log("Daily paper task registered with 3h interval.");
-  }
+  console.log("Daily paper task registered with 2m interval.");
 }
