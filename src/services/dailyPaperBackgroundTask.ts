@@ -19,7 +19,7 @@ export const saveBgLog = async (msg: string) => {
   } catch {}
 };
 
-TaskManager.defineTask(DAILY_PAPER_TASK, async () => {
+export const executeDailyPaperTask = async () => {
   try {
     await saveBgLog("Task started.");
     const recentPapers = await papersApi.getRecentPapers(50);
@@ -61,7 +61,9 @@ TaskManager.defineTask(DAILY_PAPER_TASK, async () => {
     await saveBgLog(`Background task failed: ${error.message || error}`);
     return BackgroundTask.BackgroundTaskResult.Failed;
   }
-});
+};
+
+TaskManager.defineTask(DAILY_PAPER_TASK, executeDailyPaperTask);
 
 export async function registerDailyPaperTask() {
   const status = await BackgroundTask.getStatusAsync();

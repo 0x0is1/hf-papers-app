@@ -13,6 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/contexts/ThemeContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { executeDailyPaperTask } from "@/services/dailyPaperBackgroundTask";
 
 const SettingsScreen = () => {
   const { COLORS, SIZES, isDark, toggleTheme } = useTheme();
@@ -220,6 +221,16 @@ const SettingsScreen = () => {
               title="Developer Logs"
               subtitle="View background task logs"
               onPress={fetchLogs}
+            />
+            <View style={styles(COLORS, SIZES).divider} />
+            <SettingItem
+              icon="science"
+              title="Test Task Manually"
+              subtitle="Run the background logic now"
+              onPress={async () => {
+                await executeDailyPaperTask();
+                fetchLogs();
+              }}
             />
           </View>
         </View>
